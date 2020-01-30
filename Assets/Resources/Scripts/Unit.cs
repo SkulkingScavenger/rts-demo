@@ -15,4 +15,10 @@ public class Unit : MonoBehaviour
     {
         
     }
+
+    public void Select(){
+    	Renderer r;
+    	r = gameObject.GetComponent<Renderer>();
+    	r.material.color = new Color(1f,1f,1f,1f);
+    }
 }
