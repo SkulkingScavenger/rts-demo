@@ -11,6 +11,7 @@ public class PlayerInterface : MonoBehaviour{
 	GameObject text;
 	GameObject selectionImage;
 	GameObject gameManager;
+	public List<Unit> selectedUnits = new List<Unit>();
 
 	// Start is called before the first frame update
 	void Start(){
@@ -63,20 +64,23 @@ public class PlayerInterface : MonoBehaviour{
 			}
 			if(Input.GetAxis("Right Mouse") > 0){
 				//cancel stuff and order stuff
+				issueMoveCommand();
 			}
 		}
 	}
 
 	Vector3 GetMouseCoordinates(){
-		Camera camera = GameObject.FindGameObjectWithTag("camera").GetComponent<Camera>();
-		return camera.ScreenToViewportPoint(Input.mousePosition);
+		Camera camera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+		return camera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 15.6f));
 	}
 
 	void SelectUnits(float width, float height, float x, float y){
+		bool atLeastOneUnitInSelection = false;
 		Camera camera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
 		List<Unit> allUnits = gameManager.GetComponent<GameManager>().unitList;
 		GameObject go;
 		Vector3 pos;
+		Unit unit;
 		float xMin, xMax, yMin, yMax;
 		for(int i=0; i<allUnits.Count; i++){
 			go = allUnits[i].gameObject;
@@ -87,8 +91,34 @@ public class PlayerInterface : MonoBehaviour{
 			yMin = y - height/2;
 			yMax = y + height/2;
 			if(pos.x >= xMin && pos.x <= xMax && pos.y >= yMin && pos.y <= yMax){
-				go.GetComponent<Unit>().Select();
+				if(!atLeastOneUnitInSelection){
+					DeselectAll();
+					atLeastOneUnitInSelection = true;
+				}
+				unit = go.GetComponent<Unit>();
+				selectedUnits.Add(unit);
+				unit.Select();
 			}
+		}
+	}
+
+	void SelectOne(){
+
+	}
+
+	void DeselectAll(){
+		for(int i=0;i<selectedUnits.Count;i++){
+			selectedUnits[i].Deselect();
+		}
+		selectedUnits.Clear();
+	}
+
+	void issueMoveCommand(){
+		Vector3 mouseCoords = GetMouseCoordinates();
+		for(int i=0;i<selectedUnits.Count;i++){
+			MoveCommand command = new MoveCommand();
+			command.target = new Vector2(mouseCoords.x, mouseCoords.z);
+			selectedUnits[i].currentCommand = command;
 		}
 	}
 }

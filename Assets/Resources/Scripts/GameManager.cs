@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour{
     void Start()
     {
     	CreateUnit(new Vector3(0,1,0));
+    	CreateUnit(new Vector3(2,1,0));
     }
 
     // Update is called once per frame
@@ -25,5 +26,9 @@ public class GameManager : MonoBehaviour{
     	go.transform.position = pos;
     	unitList.Add(go.GetComponent<Unit>());
     	return go;
+    }
+
+    public void Delete(Unit unit){
+
     }
 }
