@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class PlayerInterface : MonoBehaviour{
 	bool isSelecting = false;
+	public Player player;
 	Vector2 selectionStart;
 	Vector2 selectionEnd;
 	GameObject canvas;
@@ -12,6 +13,7 @@ public class PlayerInterface : MonoBehaviour{
 	GameObject selectionImage;
 	GameObject gameManager;
 	public List<Unit> selectedUnits = new List<Unit>();
+	
 
 	// Start is called before the first frame update
 	void Start(){
@@ -67,6 +69,9 @@ public class PlayerInterface : MonoBehaviour{
 				issueMoveCommand();
 			}
 		}
+
+
+		setUnitVisibility();
 	}
 
 	Vector3 GetMouseCoordinates(){
@@ -82,8 +87,8 @@ public class PlayerInterface : MonoBehaviour{
 		Vector3 pos;
 		Unit unit;
 		float xMin, xMax, yMin, yMax;
-		for(int i=0; i<allUnits.Count; i++){
-			go = allUnits[i].gameObject;
+		for(int i=0; i<player.ownedUnits.Count; i++){
+			go = player.ownedUnits[i].gameObject;
 			pos = go.transform.position;
 			pos = camera.WorldToScreenPoint(pos);
 			xMin = x - width/2;
@@ -120,5 +125,46 @@ public class PlayerInterface : MonoBehaviour{
 			command.target = new Vector2(mouseCoords.x, mouseCoords.z);
 			selectedUnits[i].currentCommand = command;
 		}
+	}
+
+	void setUnitVisibility(){
+		List<Unit> allUnits = gameManager.GetComponent<GameManager>().unitList;
+		Unit unit;
+		Unit observer;
+		for(int i=0;i<allUnits.Count;i++){
+			unit = allUnits[i];
+			unit.visible = false;
+		}
+
+		//TODO: replace ownedunits with 
+		for(int i=0;i<player.ownedUnits.Count;i++){
+			unit = player.ownedUnits[i];
+			unit.visible = true;
+		}
+
+		for(int i=0;i<allUnits.Count;i++){
+			unit = allUnits[i];
+			for(int j=0;j<player.ownedUnits.Count;j++){
+				observer = player.ownedUnits[j];
+				if(Vector3.Distance(unit.transform.position, observer.transform.position) <= observer.visionRadius){
+					if (unitHasLineOfSight(observer, unit)){
+						unit.visible = true;
+					}
+					break;
+				}
+			}
+		}
+
+	}
+
+	bool unitHasLineOfSight (Unit observer, Unit observed){
+		int layerMask = 1 << 8;
+		layerMask = ~layerMask;
+		RaycastHit hit;
+		Vector3 direction = (observer.transform.position - observed.transform.position).normalized;
+		if (Physics.Raycast(observer.transform.position, direction, observer.visionRadius, layerMask)){
+			return true;
+		}
+		return false;
 	}
 }

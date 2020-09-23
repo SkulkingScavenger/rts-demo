@@ -4,9 +4,13 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour{
 	public UnitCommand currentCommand = null;
-	public float speed = .5f;
+	[HideInInspector]
+	public float speed = 5f;
+	public bool visible = false;
+	public float visionRadius = 5f;
 	public List<Texture2D> frames = new List<Texture2D>();
 	public int framesPerSecond = 10;
+	UnityEngine.AI.NavMeshAgent agent;
 
 	Renderer scr;
 	// Start is called before the first frame update
@@ -14,21 +18,31 @@ public class Unit : MonoBehaviour{
 		GameObject selectionCircle = transform.Find("SelectionCircle").gameObject;
 		scr = selectionCircle.GetComponent<Renderer>();
 		scr.enabled = false;
-		Sprite[] sprites = Resources.LoadAll<Sprite>("Images/bumble");
-		for(int i=0;i<sprites.Length;i++){
-			Texture2D tex = new Texture2D(64, 64);
-			tex.SetPixels(sprites[i].texture.GetPixels(64*i,0,64,64,0));
-			tex.Apply();
-			frames.Add(tex);
-		}
+
+		agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+		agent.destination = transform.position; 
+
+		// Sprite[] sprites = Resources.LoadAll<Sprite>("Images/bumble");
+		// for(int i=0;i<sprites.Length;i++){
+		// 	Texture2D tex = new Texture2D(64, 64);
+		// 	tex.SetPixels(sprites[i].texture.GetPixels(64*i,0,64,64,0));
+		// 	tex.Apply();
+		// 	frames.Add(tex);
+		// }
 	}
 
 	// Update is called once per frame
 	void Update(){
-		int index = (int)((Time.time * framesPerSecond) % frames.Count);
-		gameObject.GetComponent<Renderer>().material.mainTexture = frames[index];
+		//int index = (int)((Time.time * framesPerSecond) % frames.Count);
+		//gameObject.GetComponent<Renderer>().material.mainTexture = frames[index];
 		if(currentCommand!=null){
 			executeCommand();
+		}
+		gameObject.GetComponent<Renderer>().material.color = new Color (1f,0f,0f,1f);
+		if(visible){
+			gameObject.GetComponent<Renderer>().material.color = new Color (1f,1f,1f,1f);
+		}else{
+			gameObject.GetComponent<Renderer>().material.color = new Color (0f,1f,1f,0f);
 		}
 	}
 
@@ -53,18 +67,20 @@ public class Unit : MonoBehaviour{
 	public void MoveTarget(){
 		MoveCommand command = (MoveCommand)currentCommand;
 		Vector2 targ = command.target;
-		Vector2 pos = new Vector2(transform.position.x,transform.position.z);
-		if(Vector2.Distance(targ, pos) < speed * Time.deltaTime){
-			transform.position = new Vector3(targ.x, transform.position.y, targ.y);
-			currentCommand = null;
-		}else{
-			CharacterController cc = gameObject.GetComponent<CharacterController>();
-			targ = Vector2.MoveTowards(pos,targ,speed*Time.deltaTime);
-			pos = targ - pos;
-			//transform.position = new Vector3(pos.x, transform.position.y, pos.y);
-			Vector3 move = new Vector3(pos.x,0f,pos.y);
-			move.Normalize();
-			cc.Move(move * speed * Time.deltaTime);
-		}
+		agent.destination = new Vector3(targ.x,0f,targ.y);
+		//Vector2 pos = new Vector2(transform.position.x,transform.position.z);
+		// if(Vector2.Distance(targ, pos) < speed * Time.deltaTime){
+		// 	transform.position = new Vector3(targ.x, transform.position.y, targ.y);
+		// 	currentCommand = null;
+		// }else{
+		// 	CharacterController cc = gameObject.GetComponent<CharacterController>();
+		// 	targ = Vector2.MoveTowards(pos,targ,1);
+		// 	pos = targ - pos;
+		// 	//transform.position = new Vector3(pos.x, transform.position.y, pos.y);
+		// 	Vector3 move = new Vector3(pos.x,0f,pos.y);
+		// 	move.Normalize();
+		// 	cc.Move(move * speed * Time.deltaTime);
+		// }
 	}
+
 }
