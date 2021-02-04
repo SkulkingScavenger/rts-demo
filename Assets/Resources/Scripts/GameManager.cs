@@ -45,6 +45,9 @@ public class GameManager : MonoBehaviour{
         UnitData unitData = UnitManager.Instance.unitData[unitTypeId];
         go.GetComponent<Unit>().speed = unitData.speed;
         go.GetComponent<Unit>().visionRadius = unitData.visionRadius;
+        go.GetComponent<Unit>().collisionRadius = unitData.collisionRadius;
+        go.GetComponent<Unit>().attackRange = unitData.attackRange;
+        go.GetComponent<Unit>().isMelee = unitData.isMelee;
 
         players[owningPlayer].ownedUnits.Add(go.GetComponent<Unit>());
 

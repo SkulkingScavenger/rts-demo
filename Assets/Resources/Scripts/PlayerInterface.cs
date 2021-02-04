@@ -66,7 +66,13 @@ public class PlayerInterface : MonoBehaviour{
 			}
 			if(Input.GetAxis("Right Mouse") > 0){
 				//cancel stuff and order stuff
-				issueMoveCommand();
+				Unit clickedUnit;
+				clickedUnit = GetClickedUnit();
+				if(clickedUnit == null){
+					issueMoveCommand();
+				}else{
+					issueAttackCommand(clickedUnit);
+				}
 			}
 		}
 
@@ -107,6 +113,26 @@ public class PlayerInterface : MonoBehaviour{
 		}
 	}
 
+	Unit GetClickedUnit(){
+		Unit clickedUnit = null;
+		List<Unit> allUnits = gameManager.GetComponent<GameManager>().unitList;
+		List<Unit> clickedUnits = new List<Unit>();
+		Vector3 mouseCoords = GetMouseCoordinates();
+		for (int i=0;i<allUnits.Count;i++){
+			Unit unit = allUnits[i];
+			Vector3 unitPos = new Vector3(unit.transform.position.x, 0f, unit.transform.position.z);
+			Vector3 mousePos = new Vector3(mouseCoords.x, 0f, mouseCoords.z);
+			float dist = Vector3.Distance(unitPos, mousePos);
+			if(dist <= unit.collisionRadius){
+				//clickedUnits.Add(unit);
+				clickedUnit = unit;
+				Debug.Log(clickedUnit.GetInstanceID());
+				break;
+			}
+		}
+		return clickedUnit;
+	}
+
 	void SelectOne(){
 
 	}
@@ -116,6 +142,14 @@ public class PlayerInterface : MonoBehaviour{
 			selectedUnits[i].Deselect();
 		}
 		selectedUnits.Clear();
+	}
+
+	void issueAttackCommand(Unit target){
+		for(int i=0;i<selectedUnits.Count;i++){
+			AttackCommand command = new AttackCommand();
+			command.target = target;
+			selectedUnits[i].currentCommand = command;
+		}
 	}
 
 	void issueMoveCommand(){

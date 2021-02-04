@@ -23,9 +23,13 @@ public class UnitManager : MonoBehaviour{
 	private void RegisterUnits(){
 		UnitData unitDatum = new UnitData();
 		unitDatum.id = 0;
+		unitDatum.name = "bob";
 		unitDatum.speed = 5f;
 		unitDatum.maxHitpoints = 50;
 		unitDatum.visionRadius = 5f;
+		unitDatum.collisionRadius = 1f;
+		unitDatum.attackRange = 8f;
+		unitDatum.isMelee = false;
 		unitDatum.modelFilePath = "blarg";
 		unitData.Add(unitDatum);
 	}

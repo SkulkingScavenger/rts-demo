@@ -25,6 +25,13 @@ public class MoveCommand : UnitCommand {
 	}
 }
 
+public class AttackCommand : UnitCommand {
+	public Unit target;
+	public AttackCommand(){
+		id = Commands.ATTACKTARGET;
+	}
+}
+
 // public class AbilityCommand : UnitCommand {
 // 	public Execute(ushort abilityId){
 // 		switch(abilityId){

@@ -5,11 +5,16 @@ using UnityEngine;
 public class Unit : MonoBehaviour{
 	public UnitCommand currentCommand = null;
 	[HideInInspector]
+	public string name;
 	public float speed = 5f;
 	public bool visible = false;
 	public float visionRadius = 5f;
 	public List<Texture2D> frames = new List<Texture2D>();
 	public int framesPerSecond = 10;
+	public float collisionRadius = 1f;
+	public float attackRange = 1f;
+	public bool isMelee = true;
+	public float projectileSpeed = 3f;
 	UnityEngine.AI.NavMeshAgent agent;
 
 	Renderer scr;
@@ -59,6 +64,9 @@ public class Unit : MonoBehaviour{
 			case Commands.MOVETARGET: 
 				MoveTarget();
 				break;
+			case Commands.ATTACKTARGET: 
+				AttackTarget();
+				break;
 			default:
 				break;
 		}
@@ -81,6 +89,31 @@ public class Unit : MonoBehaviour{
 		// 	move.Normalize();
 		// 	cc.Move(move * speed * Time.deltaTime);
 		// }
+	}
+
+	public void AttackTarget(){
+		AttackCommand command = (AttackCommand)currentCommand;
+		Vector3 targetPos = new Vector3(command.target.transform.position.x, 0f, command.target.transform.position.y);
+		float dist = Vector3.Distance(targetPos, transform.position);
+		Debug.Log(dist);
+		if(dist > attackRange){
+			agent.destination = targetPos;
+		}else{
+			if(isMelee){
+				//punch
+			}else{
+				GameObject go;
+    			go = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/Projectile"));
+    			go.transform.position = transform.position;
+    			Projectile projectile = go.GetComponent<Projectile>();
+    			projectile.target = command.target;
+    			projectile.speed = projectileSpeed;
+    			currentCommand = null;
+    			agent.destination = transform.position;
+			}
+		}
+		
+
 	}
 
 }
