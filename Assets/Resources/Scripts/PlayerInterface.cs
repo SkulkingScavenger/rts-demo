@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class PlayerInterface : MonoBehaviour{
 	bool isSelecting = false;
+	UnderCursorDisplay cursorHandler;
 	public Player player;
 	Vector2 selectionStart;
 	Vector2 selectionEnd;
@@ -25,6 +26,9 @@ public class PlayerInterface : MonoBehaviour{
 		selectionImage = GameObject.Instantiate(Resources.Load<GameObject>("Prefabs/selectionImage"));
 		selectionImage.transform.SetParent(canvas.transform);
 		selectionImage.GetComponent<RectTransform>().localPosition = new Vector3(0,0,0);
+
+		GameObject.FindGameObjectWithTag("Canvas").GetComponent<UserInterface>().Init(this);
+		cursorHandler = GameObject.FindGameObjectWithTag("UnderCursorDisplay").GetComponent<UnderCursorDisplay>();
 	}
 
 	// Update is called once per frame
